@@ -27,7 +27,7 @@ fn music(song: String) {
     });
 }
 
-fn update_sprite(sprite: &str, xpos: u32, ypos: u32, buffer: &mut Vec<u32>,centeringx: u8,centeringy: u8) {
+fn update_sprite(sprite: &str, xpos: u32, ypos: u32, buffer: &mut Vec<u32>, centeringx: u8, centeringy: u8) {
     let img = image::open(sprite).expect("wheres my boy metalman");
     let (img_width, img_height) = img.dimensions();
     let img = img.to_rgba8();
@@ -36,13 +36,13 @@ fn update_sprite(sprite: &str, xpos: u32, ypos: u32, buffer: &mut Vec<u32>,cente
         for x in 0..img_width.min(WIDTH as u32) {
             let pixel = img.get_pixel(x, y);
             let rgba = pixel.0;
-            let pos = (y as usize + centeringy as usize) * WIDTH + (x as usize + centeringx as usize);
-            println!("{}",ypos+centeringy as u32);
-            buffer[pos] =
-                (rgba[0] as u32) << 16 | (rgba[1] as u32) << 8 | (rgba[2] as u32);
+            let pos = ((ypos +(y as u32)) * WIDTH as u32) + (xpos+(x as u32));
+
+            buffer[pos as usize] = (rgba[0] as u32) << 16 | (rgba[1] as u32) << 8 | (rgba[2] as u32);
         }
     }
 }
+
 
 fn main() {
     let mut window = Window::new(
@@ -61,7 +61,7 @@ fn main() {
     let mut x: f64 = 208.0;
     let mut y: f64 = 0.0;
     let mut spr = "metal_jump.png";
-    let grav = 0.25;
+    let grav: f64 = 0.25;
     let mut yspeed = 0.0;
     let mut xspeed = 0.0;
     let mut metalphase = -1; //start metal man in the phase -1, or his pose phase.
@@ -90,7 +90,7 @@ fn main() {
         }
         y += yspeed;
         x += xspeed;
-        if y+metal_centery < 192.0 {
+        if y+(metal_centery as f64) < 192.0 {
             yspeed += grav;
             metal_grounded = false;
         } else {
@@ -112,7 +112,14 @@ fn main() {
                 metal_centerx = 16;
                 metal_centery = 16;
             },
-            &_ => todo!(),
+            "metal_stand.png" => {
+                metal_centerx = 16;
+                metal_centery = 16;
+            },
+            &_ => {
+                metal_centerx = 16;
+                metal_centery = 16;
+            },
         }   
         match metalphase {
             -1 => {
